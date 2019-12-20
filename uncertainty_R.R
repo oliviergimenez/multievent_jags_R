@@ -48,14 +48,14 @@ deltaNB <- 1/(1+exp(-b[8]))
 deltaB <- 1/(1+exp(-b[9]))
 
 # prob of obs (rows) cond on states (col)
-B1 = matrix(c(1-pNB,pNB,0,1-pB,0,pB,1,0,0),nrow=3,ncol=3,byrow=T)
-B2 = matrix(c(1,0,0,0,0,deltaNB,0,1-deltaNB,0,0,deltaB,1-deltaB),nrow=3,ncol=4,byrow=T)
-B = t(B1 %*% B2)
+B1 <- matrix(c(1-pNB,pNB,0,1-pB,0,pB,1,0,0),nrow=3,ncol=3,byrow=T)
+B2 <- matrix(c(1,0,0,0,0,deltaNB,0,1-deltaNB,0,0,deltaB,1-deltaB),nrow=3,ncol=4,byrow=T)
+B <- t(B1 %*% B2)
 #B = t(matrix(c(1-pNB,pNB*deltaNB,0,pNB*(1-deltaNB),1-pB,0,pB*deltaB,pB*(1-deltaB),1,0,0,0),nrow=3,ncol=4,byrow=T))
 
 # first encounter
-BE1 = matrix(c(0,1,0,0,0,1,1,0,0),nrow=3,ncol=3,byrow=T)BE2 = matrix(c(1,0,0,0,0,deltaNB,0,1-deltaNB,0,0,deltaB,1-deltaB),nrow=3,ncol=4,byrow=T)
-BE = t(BE1 %*% BE2) 
+BE1 <- matrix(c(0,1,0,0,0,1,1,0,0),nrow=3,ncol=3,byrow=T)BE2 <- matrix(c(1,0,0,0,0,deltaNB,0,1-deltaNB,0,0,deltaB,1-deltaB),nrow=3,ncol=4,byrow=T)
+BE <- t(BE1 %*% BE2) 
 #BE = t(matrix(c(0,deltaNB,0,(1-deltaNB),0,0,deltaB,(1-deltaB),1,0,0,0),nrow=3,ncol=4,byrow=T))
 # prob of states at t+1 given states at t
 A1 <- matrix(c(phiNB,0,1-phiNB,0,phiB,1-phiB,0,0,1),nrow=3,ncol=3,byrow=T)
@@ -83,7 +83,7 @@ u
 }
 
 # read in data
-data = read.table('titis2.txt')
+data <- read.table('titis2.txt')
 
 # define various quantities
 nh <- dim(data)[1]
@@ -108,9 +108,9 @@ init.state <- c(init.state,data[i,fc[i]])
 data <- t(data)
 
 # fit model
-deb=Sys.time()
+deb <- Sys.time()
 tmpmin <- optim(binit,devMULTIEVENT,NULL,hessian=FALSE,data,eff,fc,init.state,nh,km1,method="BFGS",control=list(trace=1, REPORT=1))
-fin=Sys.time()
+fin <- Sys.time()
 fin-deb 
 
 # get estimates and back-transform
@@ -134,7 +134,7 @@ pB
 deltaNB 
 deltaB 
 
-# These estimates should be compared to what we get in E-SURGE:
+# These estimates should be compared to those we get in E-SURGE:
 # Par#     1#    IS(  1,  1)(  1,  1)(  1   1) | 0.704217686 0.646248176 0.756270393 0.028149150 
 # Par#    15#    S(  1,  1)(  1,  1)(  1   1) | 0.814037056 0.779702384 0.844090508 0.016414429 
 # Par#    16#    S(  2,  2)(  1,  1)(  1   1) | 0.837489708 0.796415345 0.871612997 0.019139418 

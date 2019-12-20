@@ -2,6 +2,12 @@
 # Bayesian approach
 # see Gimenez et al. (2012), Pradel (2005)
 
+# packages
+library(nimble)
+library(basicMCMCplots)
+library(coda)
+
+
 # Read in the data: 
 mydata <- read.table('titis2.txt')
 head(mydata)
@@ -40,7 +46,7 @@ e <- c(e,min(temp[mydata[i,]>=1]))}
 # deltaB prob to ascertain the breeding status of an individual encountered as breeder
 
 # Now the model:
-M <- function() {
+code <- nimbleCode({
   # DEFINE PARAMETERS	
   # probabilities for each INITIAL STATES
   px0[1] <- piNB # prob. of being in initial state NB
@@ -82,8 +88,8 @@ M <- function() {
   po2[3,3] <- deltaB
   po2[3,4] <- 1 - deltaB
   # form the matrix product
-  po <- po1 %*% po2
-  po.init <- po1.init %*% po2
+  po[1:3,1:4] <- po1[1:3,1:3] %*% po2[1:3,1:4]
+  po.init[1:3,1:4] <- po1.init[1:3,1:3] %*% po2[1:3,1:4]
   
   # STATE PROCESS: probabilities of states at t+1 (columns) given states at t (rows)
   # step 1: survival
@@ -107,7 +113,7 @@ M <- function() {
   px2[3,2] <- 0
   px2[3,3] <- 1
   # form the matrix product
-  px <- px1 %*% px2
+  px[1:3,1:3] <- px1[1:3,1:3] %*% px2[1:3,1:3]
   
   for (i in 1:N)  # for each ind
   {
@@ -142,57 +148,79 @@ M <- function() {
   piNB ~ dunif(0, 1)
   deltaNB ~ dunif(0, 1)
   deltaB ~ dunif(0, 1)
-}
+})
 
-# Form the list of data
-mydatax <- list(N=N,Years=K,mydata=as.matrix(mydata+1),First=e)
+# Form the list of data and constants
+constants <- list(N = N, 
+                  Years = K,
+                  First = e)
+data = list(mydata=as.matrix(mydata+1))
 
 # Generate inits for the latent states:
 alive <- mydata
-# assign 2s to 3s
-alive [alive==3] <- 2
+alive[alive==3] = 2
 for (i in 1:N) {
   for (j in 1:K) {
     if (j > e[i] & mydata[i,j]==0) {alive[i,j] <- which(rmultinom(1, 1, c(1/2,1/2))==1)}
-    if (j < e[i]) {alive[i,j] <- NA}
+    if (j < e[i]) {alive[i,j] <- 0}
   }
 }
 alive1 <- as.matrix(alive)
-alive <- mydata
-# assign 1s to 3s
-alive [alive==3] <- 1
-for (i in 1:N) {
-  for (j in 1:K) {
-    if (j > e[i] & mydata[i,j]==0) {alive[i,j] <- which(rmultinom(1, 1, c(1/2,1/2))==1)}
-    if (j < e[i]) {alive[i,j] <- NA}
-  }
-}
-alive2 <- as.matrix(alive)
 
 # Now form the list of initial values:
-init1 <- list(pB=0.5,phiNB=0.3,alive=alive1)
-# second list of inits
-init2 <- list(pB=0.5,phiNB=0.6,alive=alive2)
-# concatenate list of initial values
-inits <- list(init1,init2)
+inits <- list(
+phiB = 0.5,
+phiNB = 0.5,
+psiNBB = 0.2,
+psiBNB = 0.2,
+piNB = 0.2,
+pB = 0.2,
+pNB = 0.5,
+pB = 0.5, 
+deltaNB = 0.1,
+deltaB = 0.1,
+alive = alive1)
 
-# Specify the parameters to be monitored
-parameters <- c("phiB","phiNB","psiNBB","psiBNB","piNB","pB","pNB","deltaNB","deltaB")
 
-# Tadaaaaaaan, fit the model:
-library(R2jags)
-out <- jags(mydatax,inits,parameters, M,n.chains=2,n.iter=2000,n.burnin=500)
+Rmodel <- nimbleModel(code, constants, data, inits)
+Rmodel$calculate()   ## -317.776
 
-# Check convergence:
-traceplot(out,ask=F)
+conf <- configureMCMC(Rmodel, monitors = c("phiB","phiNB","psiNBB","psiBNB","piNB","pB","pNB","deltaNB","deltaB","alive"))
 
-# Nice plots:
-library(lattice)
-jagsfit.mcmc <- as.mcmc(out)
-densityplot(jagsfit.mcmc)
+conf$printMonitors()
+conf$printSamplers(byType = TRUE)
+conf$printSamplers()
+
+Rmcmc <- buildMCMC(conf, enableWAIC = TRUE)
+Cmodel <- compileNimble(Rmodel)
+Cmcmc <- compileNimble(Rmcmc, project = Rmodel)
+
+## Posterior inference
+
+samples <- runMCMC(Cmcmc, 2500, nburnin = 1000, WAIC = TRUE)
+
+samples$WAIC
+
+samplesPlot(samples, scale = TRUE, var = c("phiB","phiNB","psiNBB","psiBNB","piNB","pB","pNB","deltaNB","deltaB"))
 
 # Print results
-print(out)
+summary(samples$samples[,c("phiB","phiNB","psiNBB","psiBNB","piNB","pB","pNB","deltaNB","deltaB")])
+
+
+#      phiB            phiNB            psiNBB           psiBNB            piNB       
+# Min.   :0.7611   Min.   :0.7653   Min.   :0.1505   Min.   :0.1238   Min.   :0.6027  
+# 1st Qu.:0.8227   1st Qu.:0.8002   1st Qu.:0.2027   1st Qu.:0.1812   1st Qu.:0.6731  
+# Median :0.8369   Median :0.8134   Median :0.2233   Median :0.2054   Median :0.6895  
+# Mean   :0.8358   Mean   :0.8121   Mean   :0.2234   Mean   :0.2065   Mean   :0.6884  
+# 3rd Qu.:0.8503   3rd Qu.:0.8226   3rd Qu.:0.2409   3rd Qu.:0.2311   3rd Qu.:0.7061  
+# Max.   :0.8937   Max.   :0.8554   Max.   :0.3310   Max.   :0.3369   Max.   :0.7541  
+#       pB              pNB            deltaNB           deltaB      
+# Min.   :0.5228   Min.   :0.4848   Min.   :0.1493   Min.   :0.5889  
+# 1st Qu.:0.5715   1st Qu.:0.5493   1st Qu.:0.1853   1st Qu.:0.6801  
+# Median :0.5921   Median :0.5675   Median :0.1933   Median :0.7044  
+# Mean   :0.5943   Mean   :0.5668   Mean   :0.1941   Mean   :0.7065  
+# 3rd Qu.:0.6151   3rd Qu.:0.5825   3rd Qu.:0.2019   3rd Qu.:0.7309  
+# Max.   :0.6878   Max.   :0.6512   Max.   :0.2356   Max.   :0.8209  
 
 # These results are to be compared to the results obtained using E-SURGE 
 # (Table 1 in Gimenez et al. 2012):
@@ -205,3 +233,4 @@ print(out)
 # piNB | 0.704217686 0.646248176 0.756270393 0.028149150 
 # psiBNB | 0.226471935 0.144866984 0.335984429 0.048899140 
 # psiNBB | 0.219402142 0.173907703 0.272866821 0.025255272 
+

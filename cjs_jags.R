@@ -1,15 +1,16 @@
 # Fit Cormack-Jolly-Seber model to the Dipper data 
 # Bayesian approach
 # see Gimenez et al. (2007), Royle (2008)
+# Jags implementation
 
 # Read in the data: 
-mydata = read.table('dipper.txt')
+mydata <- read.table('dipper.txt')
 head(mydata)
 dim(mydata)
 # remove counts
-mydata = mydata[,-8]
-N = dim(mydata)[1]
-K = dim(mydata)[2]
+mydata <- mydata[,-8]
+N <- dim(mydata)[1]
+K <- dim(mydata)[2]
 
 # Compute the date of first capture for each individual:
 e <- NULL
@@ -85,7 +86,7 @@ model <- function() {
 }
 
 # Form the list of data
-mydatax = list(N=N,Years=K,mydata=as.matrix(mydata+1),First=e)
+mydatax <- list(N=N,Years=K,mydata=as.matrix(mydata+1),First=e)
 
 # Generate inits for the latent states
 x.init <- mydata
@@ -94,7 +95,7 @@ for (i in 1:N){
 	if (e[i] > 1) x.init[i,1:(e[i]-1)] <- NA
 }
 x.init[x.init==0] <- 1
-z = as.matrix(x.init)
+z <- as.matrix(x.init)
 
 # Now form the list of initial values:
 init1 <- list(p=0.1,phi=0.1,alive=z)
@@ -120,5 +121,5 @@ densityplot(jagsfit.mcmc)
 
 # Print results
 print(out)
-# These results are to be compared to the results obtained using E-SURGE 
+# These results might be compared to the results obtained using E-SURGE 
 # 0.560243, 0.9025836

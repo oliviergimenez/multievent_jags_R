@@ -82,3 +82,6 @@ fin-deb
 x <- tmpmin$parphi <- exp(x[1])/(1+exp(x[1]))p <- exp(x[2])/(1+exp(x[2]))
 phi
 p
+
+# These results might be compared to the results obtained using E-SURGE 
+# 0.560243, 0.9025836

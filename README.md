@@ -1,12 +1,12 @@
-# Fitting multievent models in R or JAGS
+# Fitting multievent models in R, Nimble and JAGS
 ### by Olivier Gimenez
-### August 12, 2016
+### August 12, 2016 and December 19, 2019.
 
 ## What it does
 
 Here I provide R codes to fit multievent capture-recapture models (Pradel et al. 2005). Multievent models are hidden Markov models that are helpful in lots of situations to analyse capture-recapture data (see this [list of applications](https://multievent.sciencesconf.org/resource/page/id/9) for example). 
 
-I show how to obtain maximum-likelihood estimates using R and Bayesian estimates using JAGS. Two examples are considered. First a simple Cormack-Jolly-Seber model is illustrated with the classical Dipper dataset (Pradel 2005; Gimenez et al. 2007). Second, a multistate model with uncertainty in the state assignement is illustrated with a dataset on Sooty shearwaters (Pradel 2005; Gimenez et al. 2012).
+I show how to obtain maximum-likelihood estimates using R and Bayesian estimates using Nimble and JAGS. Two examples are considered. First a simple Cormack-Jolly-Seber model is illustrated with the classical Dipper dataset (Pradel 2005; Gimenez et al. 2007). Second, a multistate model with uncertainty in the state assignement is illustrated with a dataset on Sooty shearwaters (Pradel 2005; Gimenez et al. 2012).
 
 ## What it contains
 
