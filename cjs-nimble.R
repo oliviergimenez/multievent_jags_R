@@ -28,45 +28,74 @@ e <- c(e,min(temp[mydata[i,]>=1]))}
 
 # Let's define the model. To do so, some notation first:
 
-# OBSERVATIONS (+1)
-# 0 = non-detected
-# 1 = detected
-
-# STATES
-# 1 = alive
-# 2 = dead
-
-# PARAMETERS
-# phi  survival
-# p detection
-
-# input code
 code <- nimbleCode({
+
+# notation used
+# STATES
+# A for alive
+# D for dead
+
+# OBSERVATIONS
+# 0 = non-observed (coded 1)
+# 1 = observed (coded 2)
+
+# prior on survival 
 phi ~ dunif(0,1)
+
+# prior on detection
 p ~ dunif(0,1)
-for(i in 1:nind) {
-	x[i, first[i]] <- 1
-	y[i, first[i]] <- 1
-	for(t in (first[i]+1):k) {
-		x[i,t] ~ dbern(phi * x[i,t-1])
-		y[i,t] ~ dbern(p * x[i,t])
-							} # t loop
-				} # i loop
-})
+
+# probabilities for each initial state
+px0[1] <- 1 # prob. of being in initial state A
+px0[2] <- 0 # prob. of being in initial state D
+
+# define probabilities of observations at t given states at t
+po[1,1] <- 1-p
+po[1,2] <- p
+po[2,1] <- 1
+po[2,2] <- 0
+
+po.init[1,1] <- 0
+po.init[1,2] <- 1
+po.init[2,1] <- 1
+po.init[2,2] <- 0
+
+# define probabilities of states at t given states at t-1
+px[1,1] <- phi
+px[1,2] <- 1-phi
+px[2,1] <- 0
+px[2,2] <- 1
+
+for (i in 1:nind){  # for each indiv
+  # initial states
+  z[i,first[i]] ~ dcat(px0[1:2])
+  y[i,first[i]] ~ dcat(po.init[z[i,first[i]],1:2])
+  for (j in (first[i]+1):nyear){  # loop over time
+
+    # state equations
+    z[i,j] ~ dcat(px[z[i,j-1],1:2])
+
+	  # observation equations
+	  y[i,j] ~ dcat(po[z[i,j],1:2])
+    }
+}
+  
+  
+  })
 
 # constant values 
-constants <- list(k = K, nind = N, first = e)
+constants <- list(nyear = K, nind = N, first = e)
 
 # data
-data <- list(y = mydata)
+data <- list(y = mydata + 1)
 
 # initial values
-x_init <- mydata
-x_init[x_init ==0] <- 1
-inits <- list(phi = 0.5, p = 0.5, x = x_init)
+z_init <- mydata + 1
+z_init[z_init == 2] <- 1
+inits <- list(phi = 0.5, p = 0.5, z = z_init)
 
 Rmodel <- nimbleModel(code, constants, data, inits)
-Rmodel$calculate()   ## -317.776
+Rmodel$calculate()   ## -1175.578
 
 conf <- configureMCMC(Rmodel)
 
