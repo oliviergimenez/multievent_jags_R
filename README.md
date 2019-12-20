@@ -11,11 +11,13 @@ I show how to obtain maximum-likelihood estimates using R and Bayesian estimates
 ## What it contains
 
 ### Cormack-Jolly-Seber example using the Dipper dataset
+* `cjs_nimble.R`: Bayesian fitting using R and Nimble
 * `cjs_jags.R`: Bayesian fitting using R and JAGS
 * `cjs_R.R`: maximum-likelihood fitting using R
 * `dipper.txt`: the Dipper dataset
 
 ### Multistate with uncertain state example using the Sooty shearwater dataset
+* `uncertainty_nimble.R`: Bayesian fitting using R and Nimble
 * `uncertainty_jags.R`: Bayesian fitting using R and JAGS
 * `uncertainty_R.R`: maximum-likelihood fitting using R
 * `titis2.txt`: the Sooty shearwater dataset
