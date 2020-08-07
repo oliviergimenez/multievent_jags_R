@@ -24,8 +24,8 @@ I show how to obtain maximum-likelihood estimates using R and Bayesian estimates
 
 ## References
 
-Gimenez, O., Lebreton, J.-D., Gaillard, J.-M., Choquet, R. and R. Pradel (2012). [Estimating demographic parameters using hidden process dynamic models](https://dl.dropboxusercontent.com/u/23160641/my-pubs/Gimenezetal2012TPB.pdf). Theoretical Population Biology 82: 307-316.
+Gimenez, O., Lebreton, J.-D., Gaillard, J.-M., Choquet, R. and R. Pradel (2012). [Estimating demographic parameters using hidden process dynamic models](https://oliviergimenez.github.io/pubs/Gimenezetal2012TPB.pdf). Theoretical Population Biology 82: 307-316.
 
-Gimenez, O., V. Rossi, R. Choquet, C. Dehais, B. Doris, H. Varella, J.-P. Vila and R. Pradel (2007). [State-space modelling of data on marked individuals](https://dl.dropboxusercontent.com/u/23160641/my-pubs/Gimenezetal2007EcologicalModelling.pdf). Ecological Modelling 206: 431-438.
+Gimenez, O., V. Rossi, R. Choquet, C. Dehais, B. Doris, H. Varella, J.-P. Vila and R. Pradel (2007). [State-space modelling of data on marked individuals](https://oliviergimenez.github.io/pubs/Gimenezetal2007EcologicalModelling.pdf). Ecological Modelling 206: 431-438.
 
-Pradel, R. (2005). [Multievent: an extension of multistate capture–recapture models to uncertain states](http://200.46.218.171/bds-cbc/sites/default/files/Pradel%20Biometrics%202005.pdf). Biometrics 61: 442–447.
+Pradel, R. (2005). [Multievent: an extension of multistate capture–recapture models to uncertain states](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1541-0420.2005.00318.x). Biometrics 61: 442–447.
